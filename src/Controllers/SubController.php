@@ -273,6 +273,7 @@ final class SubController extends BaseController
                     $fingerprint = $node_custom_config['fingerprint'] ?? '';
                     $flow = $node_custom_config['flow'] ?? '';
                     $reality_opts = $node_custom_config['reality-opts'] ?? $node_custom_config['reality_opts'] ?? null;
+                    $path = $node_custom_config['path'] ?? '/';
 
                     $node = [
                         'name' => $node_raw->name,
@@ -295,6 +296,7 @@ final class SubController extends BaseController
                         'http-opts' => $http_opts,
                         'grpc-opts' => $grpc_opts,
                         'reality-opts' => $reality_opts,
+                        'ws-path' => $path,
                     ];
 
                     break;
