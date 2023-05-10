@@ -255,6 +255,10 @@
                                                class="copy btn btn-primary">
                                                 复制 Clash 订阅链接
                                             </a>
+                                            <a data-clipboard-text="{$UniversalSub}/v2rayN"
+                                               class="copy btn btn-primary">
+                                                复制 v2rayN 订阅链接
+                                            </a>
                                             <a href="/clients/Clash-Windows.exe"
                                                class="btn btn-primary">
                                                 下载 Clash for Windows
