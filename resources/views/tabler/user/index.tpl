@@ -250,12 +250,15 @@
                                         <p>
                                             适用于 Clash 的订阅：<code>{$UniversalSub}/clash</code>
                                         </p>
+                                        <p>
+                                            适用于 v2rayN 的订阅：<code>{$TraditionalSub}?v2rayN=1</code>
+                                        </p>                                        
                                         <div class="btn-list justify-content-start">
                                             <a data-clipboard-text="{$UniversalSub}/clash"
                                                class="copy btn btn-primary">
                                                 复制 Clash 订阅链接
                                             </a>
-                                            <a data-clipboard-text="{$UniversalSub}/v2rayN"
+                                            <a data-clipboard-text="{$TraditionalSub}?v2rayN=1"
                                                class="copy btn btn-primary">
                                                 复制 v2rayN 订阅链接
                                             </a>
