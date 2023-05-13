@@ -378,6 +378,43 @@ final class LinkController extends BaseController
             
         }
 
+        if (strtotime($user->expire_in) > time()) {
+            if ($user->transfer_enable == 0) {
+                $unusedTraffic = '剩余流量：0';
+            } else {
+                $unusedTraffic = '剩余流量：' . $user->unusedTraffic();
+            }
+            $expire_in = '过期时间：';
+            if ($user->class_expire != '1989-06-04 00:05:00') {
+                $userClassExpire = explode(' ', $user->class_expire);
+                $expire_in .= $userClassExpire[0];
+            } else {
+                $expire_in .= '无限期';
+            }
+        } else {
+            $unusedTraffic = '账户已过期，请续费后使用';
+            $expire_in = '账户已过期，请续费后使用';
+        }
+        
+        $info_array = [];
+        $info_array[] = $unusedTraffic;
+        $info_array[] = $expire_in;
+        foreach ($info_array as $remark) {
+            $v2rayn_array = [
+                        'v' => '2',
+                        'ps' => $remark,
+                        'add' => '1.1.1.1',
+                        'port' => '1011',
+                        'id' => $user->uuid,
+                        'aid' => '',
+                        'net' => '',
+                        'type' => 'vmess',
+                        'host' => '',
+                        'path' => '',
+                        'tls' => 'tls',
+                    ];
+            $links .= 'vmess://' . base64_encode(json_encode($v2rayn_array)) . PHP_EOL;
+        }
         return $links;
     }
 }
