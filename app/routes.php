@@ -13,6 +13,10 @@ return static function (Slim\App $app): void {
     $app->get('/', App\Controllers\HomeController::class . ':index');
     $app->get('/tos', App\Controllers\HomeController::class . ':tos');
     $app->get('/staff', App\Controllers\HomeController::class . ':staff');
+    // Error Page
+    $app->get('/404', App\Controllers\HomeController::class . ':notFound');
+    $app->get('/405', App\Controllers\HomeController::class . ':methodNotAllowed');
+    $app->get('/500', App\Controllers\HomeController::class . ':internalServerError');
     // Telegram
     $app->post('/telegram_callback', App\Controllers\HomeController::class . ':telegram');
     // User Center
@@ -57,7 +61,6 @@ return static function (Slim\App $app): void {
         $group->get('/kill', App\Controllers\UserController::class . ':kill');
         $group->post('/kill', App\Controllers\UserController::class . ':handleKill');
         $group->get('/logout', App\Controllers\UserController::class . ':logout');
-        $group->get('/backtoadmin', App\Controllers\UserController::class . ':backtoadmin');
         // MFA
         $group->post('/ga_check', App\Controllers\User\MFAController::class . ':checkGa');
         $group->post('/ga_set', App\Controllers\User\MFAController::class . ':setGa');

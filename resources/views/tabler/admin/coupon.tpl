@@ -1,4 +1,4 @@
-{include file='admin/tabler_header.tpl'}
+{include file='admin/header.tpl'}
 
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="//cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -182,8 +182,8 @@
                 },
                 success: function(data) {
                     if (data.ret === 1) {
-                        $('#success-message').text(data.msg);
-                        $('#success-dialog').modal('show');
+                        $('#success-noreload-message').text(data.msg);
+                        $('#success-noreload-dialog').modal('show');
                         reloadTableAjax();
                     } else {
                         $('#fail-message').text(data.msg);
@@ -225,8 +225,8 @@
                     dataType: "json",
                     success: function(data) {
                         if (data.ret === 1) {
-                            $('#success-message').text(data.msg);
-                            $('#success-dialog').modal('show');
+                            $('#success-noreload-dialog').text(data.msg);
+                            $('#success-noreload-message').modal('show');
                             reloadTableAjax();
                         } else {
                             $('#fail-message').text(data.msg);
@@ -244,4 +244,4 @@
         loadTable();
     </script>
 
-{include file='admin/tabler_footer.tpl'}
+{include file='admin/footer.tpl'}

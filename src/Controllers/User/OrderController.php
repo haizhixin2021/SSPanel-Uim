@@ -9,12 +9,14 @@ use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\UserCoupon;
+use App\Utils\Cookie;
 use App\Utils\Tools;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
 use voku\helper\AntiXSS;
+use function explode;
 use function in_array;
 use function json_decode;
 use function json_encode;
@@ -56,13 +58,17 @@ final class OrderController extends BaseController
     {
         $antiXss = new AntiXSS();
         $product_id = $antiXss->xss_clean($request->getQueryParams()['product_id']) ?? null;
+        $redir = Cookie::get('redir');
+
+        if ($redir !== null) {
+            Cookie::set(['redir' => ''], time() - 1);
+        }
 
         if ($product_id === null || $product_id === '') {
             return $response->withRedirect('/user/product');
         }
 
         $product = Product::where('id', $product_id)->first();
-
         $product->content = json_decode($product->content);
 
         return $response->write(
@@ -167,13 +173,22 @@ final class OrderController extends BaseController
             $coupon_use_limit = $coupon_limit->use_time;
 
             if ($coupon_use_limit > 0) {
-                $use_count = Order::where('user_id', $user->id)->where('coupon', $coupon->code)->count();
-                if ($use_count >= $coupon_use_limit) {
+                $user_use_count = Order::where('user_id', $user->id)->where('coupon', $coupon->code)->count();
+                if ($user_use_count >= $coupon_use_limit) {
                     return $response->withJson([
                         'ret' => 0,
                         'msg' => '优惠码无效',
                     ]);
                 }
+            }
+
+            $coupon_total_use_limit = $coupon_limit->total_use_time;
+
+            if ($coupon_total_use_limit > 0 && $coupon->use_count >= $coupon_total_use_limit) {
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => '优惠码无效',
+                ]);
             }
 
             $content = json_decode($coupon->content);
@@ -197,7 +212,7 @@ final class OrderController extends BaseController
         }
 
         if ($product_limit->node_group_required !== ''
-             && (int) $user->node_group !== (int) $product_limit->node_group_required) {
+            && (int) $user->node_group !== (int) $product_limit->node_group_required) {
             return $response->withJson([
                 'ret' => 0,
                 'msg' => '账户不满足购买条件',
@@ -259,6 +274,11 @@ final class OrderController extends BaseController
         }
         $product->sale_count += 1;
         $product->save();
+
+        if ($coupon_raw !== '') {
+            $coupon->use_count += 1;
+            $coupon->save();
+        }
 
         return $response->withJson([
             'ret' => 1,

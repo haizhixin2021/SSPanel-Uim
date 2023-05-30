@@ -1,4 +1,4 @@
-{include file='user/tabler_header.tpl'}
+{include file='user/header.tpl'}
 
 <div class="page-wrapper">
     <div class="container-xl">        
@@ -165,8 +165,8 @@
                 },
                 success: function(data) {
                     if (data.ret === 1) {
-                        $('#success-message').text(data.msg);
-                        $('#success-dialog').modal('show');
+                        $('#success-noreload-message').text(data.msg);
+                        $('#success-noreload-dialog').modal('show');
                         setTimeout(function() {
                             $(location).attr('href', '/user/invoice/' + data.invoice_id + '/view');
                         }, 1500);
@@ -179,4 +179,4 @@
         });
     </script>
     
-{include file='user/tabler_footer.tpl'}
+{include file='user/footer.tpl'}
