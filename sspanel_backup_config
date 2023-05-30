@@ -1,0 +1,11 @@
+#config
+backup_name="backup_sspanel.880219.xyz"
+b2_app_key_id="0053c954ef1b8850000000001"
+b2_app_key="K005coJBTnEubVtjO2ZbJ82WXZ1Rq24"
+b2_bucket_name="backup-20230513"
+db_name=""
+db_password=''
+db_user=""
+db_host=""
+website_dir="/www/wwwroot/sspanel.880219.xyz"
+compress_method="zip" #gzip or zip
