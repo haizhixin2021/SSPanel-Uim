@@ -19,12 +19,12 @@ final class UserTrafficLogController extends BaseController
         'field' => [
             'id' => '记录ID',
             'user_id' => '用户ID',
-            'u' => '上传流量/MB',
-            'd' => '下载流量/MB',
+            'u' => '上传流量',
+            'd' => '下载流量',
             'node_id' => '节点ID',
             'node_name' => '节点名称',
             'rate' => '倍率',
-            'traffic' => '使用流量/MB',
+            'traffic' => '结算流量',
             'log_time' => '时间',
         ],
     ];
@@ -58,9 +58,9 @@ final class UserTrafficLogController extends BaseController
         foreach ($usertrafficlogs as $trafficlog) {
             //$trafficlog->traffic = round(Tools::flowToGB($trafficlog->traffic), 2);
             //$trafficlog->hourly_usage = round(Tools::flowToGB($trafficlog->hourly_usage), 2);
-            $trafficlog->u = round(Tools::flowToMB($trafficlog->u), 2);
-            $trafficlog->d = round(Tools::flowToMB($trafficlog->d), 2);
-            $trafficlog->traffic = round(Tools::flowToMB($trafficlog->traffic), 2);
+            $trafficlog->u = Tools::flowAutoShow($trafficlog->u); 
+            $trafficlog->d = Tools::flowAutoShow($trafficlog->d);
+            $trafficlog->traffic = $trafficlog->traffic;
             $trafficlog->log_time = Tools::toDateTime((int) $trafficlog->log_time);
         }
 
