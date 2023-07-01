@@ -35,8 +35,8 @@ final class User extends Model
      * @var bool
      */
     public bool $isLogin;
-    protected $connection = 'default';
 
+    protected $connection = 'default';
     protected $table = 'user';
 
     /**
@@ -46,9 +46,8 @@ final class User extends Model
      */
     protected $casts = [
         'port' => 'int',
-        'is_admin' => 'boolean',
         'node_speedlimit' => 'float',
-        'sendDailyMail' => 'int',
+        'daily_mail_enable' => 'int',
         'ref_by' => 'int',
     ];
 
@@ -579,7 +578,7 @@ final class User extends Model
         $enable_traffic = $this->enableTraffic();
         $used_traffic = $this->usedTraffic();
         $unused_traffic = $this->unusedTraffic();
-        switch ($this->sendDailyMail) {
+        switch ($this->daily_mail_enable) {
             case 1:
                 echo 'Send daily mail to user: ' . $this->id;
                 $this->sendMail(
@@ -625,6 +624,10 @@ final class User extends Model
         $loginip->userid = $this->id;
         $loginip->datetime = time();
         $loginip->type = $type;
+
+        if ($type === 0) {
+            $this->last_login_time = time();
+        }
 
         return $loginip->save();
     }

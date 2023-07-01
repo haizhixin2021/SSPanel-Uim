@@ -83,6 +83,7 @@ final class AuthController extends BaseController
         if (! Hash::checkPassword($user->pass, $passwd)) {
             // 记录登录失败
             $user->collectLoginIP($_SERVER['REMOTE_ADDR'], 1);
+
             return $response->withJson([
                 'ret' => 0,
                 'msg' => '邮箱或者密码错误',
@@ -91,6 +92,9 @@ final class AuthController extends BaseController
 
         if ($user->ga_enable === 1) {
             if (strlen($code) !== 6) {
+                // 记录登录失败
+                $user->collectLoginIP($_SERVER['REMOTE_ADDR'], 1);
+
                 return $response->withJson([
                     'ret' => 0,
                     'msg' => '两步验证码错误',
@@ -101,6 +105,9 @@ final class AuthController extends BaseController
             $rcode = $ga->verifyCode($user->ga_token, $code);
 
             if (! $rcode) {
+                // 记录登录失败
+                $user->collectLoginIP($_SERVER['REMOTE_ADDR'], 1);
+
                 return $response->withJson([
                     'ret' => 0,
                     'msg' => '两步验证码错误',
@@ -253,7 +260,6 @@ final class AuthController extends BaseController
         $user->uuid = Uuid::uuid4();
         $user->api_token = Uuid::uuid4();
         $user->port = Tools::getAvPort();
-        $user->t = 0;
         $user->u = 0;
         $user->d = 0;
         $user->method = $configs['sign_up_for_method'];
@@ -267,7 +273,7 @@ final class AuthController extends BaseController
         $user->invite_num = $configs['sign_up_for_invitation_codes'];
         $user->auto_reset_day = Setting::obtain('free_user_reset_day');
         $user->auto_reset_bandwidth = Setting::obtain('free_user_reset_bandwidth');
-        $user->sendDailyMail = $configs['sign_up_for_daily_report'];
+        $user->daily_mail_enable = $configs['sign_up_for_daily_report'];
 
         if ($money > 0) {
             $user->money = $money;
@@ -291,7 +297,6 @@ final class AuthController extends BaseController
 
         $user->class_expire = date('Y-m-d H:i:s', time() + (int) $configs['sign_up_for_class_time'] * 86400);
         $user->class = $configs['sign_up_for_class'];
-        $user->node_connector = 0;
         $user->node_iplimit = $configs['connection_ip_limit'];
         $user->node_speedlimit = $configs['connection_rate_limit'];
         $user->expire_in = date('Y-m-d H:i:s', time() + (int) $configs['sign_up_for_free_time'] * 86400);
