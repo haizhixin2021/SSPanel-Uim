@@ -174,7 +174,7 @@ final class UserController extends BaseController
             $sum += $u + $d;
 
             //user_traffic_log
-            $stat1->execute([$user_id, $u, $d, $node_id, $rate, number_format(($u+$d) * $rate / 1024, 2, '.', '')]);
+            $stat1->execute([$user_id, $u, $d, $node_id, $rate, ($u+$d) * $rate]);
         }
 
         $node->increment('node_bandwidth', $sum);
