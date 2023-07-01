@@ -22,6 +22,7 @@ final class UserTrafficLogController extends BaseController
             'u' => '上传流量/MB',
             'd' => '下载流量/MB',
             'node_id' => '节点ID',
+            'node_name' => '节点名称',
             'rate' => '倍率',
             'traffic' => '使用流量/MB',
             'log_time' => '时间',
