@@ -175,7 +175,7 @@ final class UserController extends BaseController
 
             //user_traffic_log
             if(($u+$d) > 0) {
-                $stat1->execute([$user_id, $u, $d, $node_id, $node->name, $rate, ($u+$d) * $rate]);
+                $stat1->execute([$user_id, $u, $d, $node_id, $node->name, $rate, Tools::flowAutoShow(($u+$d) * $rate)]);
             }
         }
 
