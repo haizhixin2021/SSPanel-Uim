@@ -159,7 +159,11 @@ final class UserController extends BaseController
         ');
         $rate = (float) $node->traffic_rate;
         $sum = 0;
-
+        //20230701 新增        
+        $stat1 = DB::getPdo()->prepare('
+            INSERT INTO user_traffic_log (user_id, u, d, node_id, rate, traffic, log_time)
+                VALUES (?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP())
+        ');
         foreach ($data as $log) {
             $u = $log?->u;
             $d = $log?->d;
@@ -168,6 +172,9 @@ final class UserController extends BaseController
                 $stat->execute([(int) ($u * $rate), (int) ($d * $rate), (int) ($u + $d), (int) ($u + $d), $user_id]);
             }
             $sum += $u + $d;
+
+            //user_traffic_log
+            $stat1->execute([$user_id, $u, $d, $node_id, $rate, number_format(($u+$d) * $rate / 1024, 2, '.', '')]);
         }
 
         $node->increment('node_bandwidth', $sum);
