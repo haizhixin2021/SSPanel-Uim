@@ -161,8 +161,8 @@ final class UserController extends BaseController
         $sum = 0;
         //20230701 新增        
         $stat1 = DB::getPdo()->prepare('
-            INSERT INTO user_traffic_log (user_id, u, d, node_id, rate, traffic, log_time)
-                VALUES (?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP())
+            INSERT INTO user_traffic_log (user_id, u, d, node_id, node_name, rate, traffic, log_time)
+                VALUES (?, ?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP())
         ');
         foreach ($data as $log) {
             $u = $log?->u;
@@ -175,7 +175,7 @@ final class UserController extends BaseController
 
             //user_traffic_log
             if(($u+$d) > 0) {
-                $stat1->execute([$user_id, $u, $d, $node_id, $rate, ($u+$d) * $rate]);
+                $stat1->execute([$user_id, $u, $d, $node_id, $node->name, $rate, ($u+$d) * $rate]);
             }
         }
 
