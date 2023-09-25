@@ -195,6 +195,9 @@ return static function (Slim\App $app): void {
         // 流量日志
         $group->get('/trafficlog', App\Controllers\Admin\TrafficLogController::class . ':index');
         $group->post('/trafficlog/ajax', App\Controllers\Admin\TrafficLogController::class . ':ajax');
+        //节点流量使用
+        $group->get('/usertrafficlog', App\Controllers\Admin\UserTrafficLogController::class . ':index');
+        $group->post('/usertrafficlog/ajax', App\Controllers\Admin\UserTrafficLogController::class . ':ajax');        
         // 用户余额日志
         $group->get('/moneylog', App\Controllers\Admin\MoneyLogController::class . ':log');
         $group->post('/moneylog/ajax', App\Controllers\Admin\MoneyLogController::class . ':ajax');

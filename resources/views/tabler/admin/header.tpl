@@ -199,6 +199,10 @@
                                         <i class="ti ti-arrows-up-down"></i>&nbsp;
                                         流量使用
                                     </a>
+                                    <a class="dropdown-item" href="/admin/usertrafficlog">
+                                        <i class="ti ti-arrows-up-down"></i>&nbsp;
+                                        节点流量使用
+                                    </a>
                                 </div>
                             </li>
                             <li class="nav-item dropdown">

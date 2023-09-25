@@ -68,7 +68,12 @@ final class LinkController extends BaseController
             $sub_type = 'trojan';
             $sub_info = self::getTrojan($user);
         }
-
+        
+        if (isset($params['v2rayN']) && $params['v2rayN'] === '1') {
+            $sub_type = 'v2rayN';
+            $sub_info = self::getV2rayN($user);
+        }        
+        
         if (isset($params['sub'])) {
             switch ($params['sub']) {
                 case '3':
@@ -287,5 +292,129 @@ final class LinkController extends BaseController
         $userid = $user->id;
         $token = Link::where('userid', $userid)->first();
         return $_ENV['subUrl'] . '/link/' . $token->token;
+    }
+    
+    public static function getV2rayN($user): string
+    {
+        $links = '';
+        //篩選出用戶能連接的節點
+        $nodes_raw = Node::where('type', 1)
+            ->where('node_class', '<=', $user->class)
+            ->whereIn('node_group', [0, $user->node_group])
+            ->where(static function ($query): void {
+                $query->where('node_bandwidth_limit', '=', 0)->orWhereRaw('node_bandwidth < node_bandwidth_limit');
+            })
+            ->get();
+
+        foreach ($nodes_raw as $node_raw) {
+            $node_custom_config = json_decode($node_raw->custom_config, true);
+            //檢查是否配置“前端/订阅中下发的服务器地址”
+            if (! array_key_exists('server_user', $node_custom_config)) {
+                $server = $node_raw->server;
+            } else {
+                $server = $node_custom_config['server_user'];
+            }
+            
+            switch ((int) $node_raw->sort) {
+                case 0:
+                        $links .= base64_encode($user->method . ':' . $user->passwd . '@' . $server . ':' . $user->port) . '#' .
+                            $node_raw->name . PHP_EOL;
+                    break;
+                case 11:
+                    $v2_port = $node_custom_config['v2_port'] ?? ($node_custom_config['offset_port_user']
+                    ?? ($node_custom_config['offset_port_node'] ?? 443));
+                    //默認值有問題的請懂 V2 怎麽用的人來改一改。
+                    $alter_id = $node_custom_config['alter_id'] ?? '0';
+                    $security = $node_custom_config['security'] ?? 'none';
+                    $network = $node_custom_config['network'] ?? '';
+                    $header = $node_custom_config['header'] ?? ['type' => 'none'];
+                    $header_type = $header['type'] ?? '';
+                    $host = $node_custom_config['host'] ?? '';
+                    $path = $node_custom_config['path'] ?? '/';
+
+                    $v2rayn_array = [
+                        'v' => '2',
+                        'ps' => $node_raw->name,
+                        'add' => $server,
+                        'port' => $v2_port,
+                        'id' => $user->uuid,
+                        'aid' => $alter_id,
+                        'net' => $network,
+                        'type' => $header_type,
+                        'host' => $host,
+                        'path' => $path,
+                        'tls' => $security,
+                    ];
+                    $links .= 'vmess://' . base64_encode(json_encode($v2rayn_array)) . PHP_EOL;
+                    break;
+                case 14:
+                    $trojan_port = $node_custom_config['trojan_port'] ?? ($node_custom_config['offset_port_user']
+                        ?? ($node_custom_config['offset_port_node'] ?? 443));
+                    $host = $node_custom_config['host'] ?? '';
+                    $allow_insecure = $node_custom_config['allow_insecure'] ?? '0';
+                    $security = $node_custom_config['security']
+                        ?? array_key_exists('enable_xtls', $node_custom_config)
+                        && $node_custom_config['enable_xtls'] === '1' ? 'xtls' : 'tls';
+                    $mux = $node_custom_config['mux'] ?? '';
+                    $transport = $node_custom_config['transport']
+                        ?? array_key_exists('grpc', $node_custom_config)
+                        && $node_custom_config['grpc'] === '1' ? 'grpc' : 'tcp';
+
+                    $transport_plugin = $node_custom_config['transport_plugin'] ?? '';
+                    $transport_method = $node_custom_config['transport_method'] ?? '';
+                    $servicename = $node_custom_config['servicename'] ?? '';
+                    $path = $node_custom_config['path'] ?? '';
+
+                    $links .= 'trojan://' . $user->uuid . '@' . $server . ':' . $trojan_port . '?peer=' . $host . '&sni='
+                        . $host . '&obfs=' . $transport_plugin . '&path=' . $path . '&mux=' . $mux . '&allowInsecure='
+                        . $allow_insecure . '&obfsParam=' . $transport_method . '&type=' . $transport . '&security='
+                        . $security . '&serviceName=' . $servicename . '#' . $node_raw->name . PHP_EOL;
+                    break;
+                default:
+                    break;
+                
+                
+            }
+            
+        }
+
+        if (strtotime($user->expire_in) > time()) {
+            if ($user->transfer_enable == 0) {
+                $unusedTraffic = '剩余流量：0';
+            } else {
+                $unusedTraffic = '剩余流量：' . $user->unusedTraffic();
+            }
+            $expire_in = '过期时间：';
+            if ($user->class_expire != '1989-06-04 00:05:00') {
+                $userClassExpire = explode(' ', $user->class_expire);
+                $expire_in .= $userClassExpire[0];
+            } else {
+                $expire_in .= '无限期';
+            }
+        } else {
+            $unusedTraffic = '账户已过期，请续费后使用';
+            $expire_in = '账户已过期，请续费后使用';
+        }
+        
+        $info_array = [];
+        $info_array[] = $unusedTraffic;
+        $info_array[] = $expire_in;
+        foreach ($info_array as $remark) {
+            $v2rayn_array = [
+                        'v' => '2',
+                        'ps' => $remark,
+                        'add' => '1.1.1.1',
+                        'port' => '1011',
+                        'id' => $user->uuid,
+                        'aid' => '',
+                        'net' => '',
+                        'type' => 'vmess',
+                        'host' => '',
+                        'path' => '',
+                        'tls' => 'tls',
+                    ];
+            $links .= 'vmess://' . base64_encode(json_encode($v2rayn_array)) . PHP_EOL;
+        }
+        return $links;
     }
 }

@@ -6,6 +6,7 @@ Author: M1Screw
 Github: https://github.com/sspanel-uim/SSPanel-Uim-Dev
 Usage: 
 ./update.sh dev --> Upgrade to the latest development version
+./update.sh dev-20230530 --> Upgrade to the latest development version
 ./update.sh release $release_version $db_version --> Upgrade to the release version with the specified database version
 EOF
 
@@ -18,6 +19,18 @@ do_update_sspanel_dev(){
     rm -r storage/framework/smarty/compile/*
     php composer.phar install --no-dev
     php composer.phar selfupdate
+    php xcat Update
+    php xcat Tool importAllSettings
+    php xcat Migration latest
+}
+
+do_update_sspanel_dev_20230530(){
+    git pull
+    rm -r storage/framework/smarty/compile/*
+    php composer.phar install --no-dev --ignore-platform-req=ext-zip --ignore-platform-req=ext-fileinfo
+    php composer.phar selfupdate
+    chmod -R 755 /www/wwwroot/sspanel.880219.xyz/sspanel-uim
+    chown -R www:www /www/wwwroot/sspanel.880219.xyz/sspanel-uim
     php xcat Update
     php xcat Tool importAllSettings
     php xcat Migration latest
@@ -38,6 +51,11 @@ do_update_sspanel_release(){
 
 if [[ $1 == "dev" ]]; then
     do_update_sspanel_dev
+    exit 0
+fi
+
+if [[ $1 == "dev-20230530" ]]; then
+    do_update_sspanel_dev_20230530
     exit 0
 fi
 
